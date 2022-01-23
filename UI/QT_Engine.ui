@@ -365,7 +365,7 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="stop_watch_button">
+  <widget class="QPushButton" name="watch_button">
    <property name="geometry">
     <rect>
      <x>462</x>
@@ -375,7 +375,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Stop watch</string>
+    <string>Start watch</string>
    </property>
   </widget>
  </widget>

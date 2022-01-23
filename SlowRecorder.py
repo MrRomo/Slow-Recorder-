@@ -1,7 +1,8 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import QThread, QUrl
 from UI.QT_Engine import Ui_SlowRecord
 from CameraManager import CameraManager, ThreadWatch
+from FileManager import FileManager
 from time import sleep as delay
 import sys
 import threading
@@ -15,6 +16,7 @@ class SlowRecorder():
         self.ui = None
         self.watch_active = True
         self.switching = False
+
     def startApp(self):
         self.app = QtWidgets.QApplication(sys.argv)
         self.MainWindow = QtWidgets.QMainWindow()
@@ -27,7 +29,7 @@ class SlowRecorder():
         # config
         self.camera_selector = self.ui.camera_selector
         self.camera_viewer = self.ui.camera_viewer
-        self.stop_watch_button = self.ui.stop_watch_button
+        self.folder = self.ui.output_folder_input
 
         # self.translate = self.ui.translate
         # self.portSelector = self.ui.portSelector
@@ -35,8 +37,9 @@ class SlowRecorder():
         # self.hexBox = self.ui.hexBox
         # self.console = self.ui.console_thread
 
-        # #Buttons
-        # self.connectButton = self.ui.connectButton
+        # Buttons
+        self.watch_button = self.ui.watch_button
+        self.select_folder_button = self.ui.output_folder_tool
         # self.flashButton = self.ui.flashButton
         # self.eraseButton = self.ui.eraseButton
         # self.sendButton = self.ui.sendButton
@@ -46,8 +49,10 @@ class SlowRecorder():
         # Init Managers
         delay(1)
         self.camera_manager = CameraManager(
-            self.camera_selector, self.timelapse_started, self.camera_viewer)
-        
+            self.camera_selector, self.timelapse_started,
+            self.camera_viewer, self.watch_button,
+            self.watch_active)
+        self.file_manager = FileManager(self.folder)
         # Init Signals
         self.startSignals()
     #   self.thread = QThread()
@@ -74,22 +79,12 @@ class SlowRecorder():
     def startSignals(self):
         self.camera_selector.currentIndexChanged.connect(
             self.camera_manager.change_camera)
-        self.stop_watch_button.clicked.connect(self.toggle_watch)
+        self.watch_button.clicked.connect(self.camera_manager.toggle_watch)
+        self.select_folder_button.clicked.connect(self.file_manager.select_folder)
 
     def startThreads(self):
         self.setImageThread = self.startQThread(
             ThreadWatch, 'changePixmap', self.camera_manager.setImage)
         self.setImageThread.start()
-    
-    def toggle_watch(self):
-        if(not self.switching):
-            self.switching = True
-            if(self.watch_active):
-                self.camera_manager.start_watch()
-            else:
-                self.camera_manager.watch_thread.stop()
-            self.watch_active = not self.watch_active
-            self.switching = False
 
-        
         
