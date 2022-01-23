@@ -1,11 +1,12 @@
 import json
+import os
 import cv2
 from math import floor
 
 
 class File:
-    def __init__(self, folder, progress):
-        self.folder = folder
+    def __init__(self, progress):
+        self.folder = None
         self.progress = progress
 
     def save_picture(self, name, img):
@@ -25,6 +26,24 @@ class File:
         out.release()
     
     def load_config(self):
-        file = open('config.json')
-        data = json.loads(file)
-        print(data)
+        try:        
+            file = open('config.json', 'r')
+            data = json.load(file)
+        except FileNotFoundError:
+            data = self.set_default_config()
+        self.folder = data['folder']
+        return data
+
+    def set_default_config(self):
+        default_config = {
+            "lang": 'EN',
+            "folder": os.getcwd()
+        }
+        self.save_config(default_config)
+        return default_config
+
+    def save_config(self, config):
+        file = json.dumps(config)
+        with open('config.json', 'w') as outfile:
+            outfile.write(file)
+        

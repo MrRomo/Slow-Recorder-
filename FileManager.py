@@ -7,19 +7,32 @@ from time import sleep as delay
 
 class FileManager:
     def __init__(self, folder_input, progress_bar, progress_label):
-        self.folder = ''
         self.progress_bar = progress_bar
         self.progress_label = progress_label
-        self.file = File(self.folder, progress_bar)
+        self.file = File(progress_bar)
+        self.config = self.file.load_config()
         self.folder_input = folder_input
         self.translate = QtCore.QCoreApplication.translate
+        self.set_folder()
         self.start_progress_sequence()
 
     def select_folder(self):
         dialog = QtWidgets.QFileDialog()
-        self.folder = dialog.getExistingDirectory(
+        self.file.folder = dialog.getExistingDirectory(
             caption='Select save directory')
-        self.folder_input.setText(self.translate("SlowRecord", self.folder))
+        self.config['folder'] = self.file.folder
+        self.set_folder()
+        self.file.save_config(self.config)
+
+    def change_folder(self):
+        self.file.folder = self.folder_input.text()
+        print(self.file.folder)
+        self.config['folder'] = self.file.folder
+        self.file.save_config(self.config)
+
+    def set_folder(self):
+        self.folder_input.setText(
+            self.translate("SlowRecord", self.file.folder))
 
     def start_progress_sequence(self):
         self.progress_thread = ThreadProgress()
@@ -29,7 +42,7 @@ class FileManager:
 
     def set_progress_value(self, i):
         self.progress_bar.setProperty("value", i)
-    
+
     def set_progress_msg(self, msg):
         self.progress_label.setText(self.translate("SlowRecord", msg))
 
@@ -52,4 +65,3 @@ class ThreadProgress(QThread):
 
         self.progress.emit(0)
         self.msg.emit(f'Ready')
-        
