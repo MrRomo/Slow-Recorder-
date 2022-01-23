@@ -1,10 +1,11 @@
-import cv2 
+import cv2
 from Camera import Camera, list_cameras
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QThread, Qt, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
 from time import sleep as delay
 from collections import deque as dq
+
 
 class CameraManager:
 
@@ -27,7 +28,6 @@ class CameraManager:
         # th = ThreadWatch()
         # th.changePixmap.connect(self.setImage)
         # th.start()
-
 
     def refresh_cameras(self):
         self.camera_selector_thread.queue.append(list_cameras())
@@ -52,12 +52,11 @@ class CameraManager:
         self.watch_thread.changePixmap.connect(self.setImage)
         self.watch_button.setText(self.translate("SlowRecord", "Stop watch"))
         self.watch_thread.start()
-    
+
     def stop_watch(self):
         self.camera_viewer.setPixmap(QtGui.QPixmap("UI/sample.png"))
         self.watch_button.setText(self.translate("SlowRecord", "Start watch"))
         self.watch_thread.stop()
-
 
     def toggle_watch(self):
         if(not self.switching):
@@ -69,7 +68,6 @@ class CameraManager:
                 self.stop_watch()
             self.watch_active = not self.watch_active
             self.switching = False
-
 
 
 class QueueThreadList(QThread):
@@ -84,6 +82,7 @@ class QueueThreadList(QThread):
                 self.queue.popleft()
                 self.change_value.emit(msg)
             delay(1)
+
 
 class ThreadWatch(QThread):
     finished = pyqtSignal()
@@ -101,7 +100,7 @@ class ThreadWatch(QThread):
                 p = QImage(rgbImage, w, h, bytesPerLine, QImage.Format_RGB888)
                 self.changePixmap.emit(p)
             delay(0.01)
-    
+
     def stop(self):
         self.cap.release()
         self.quit()

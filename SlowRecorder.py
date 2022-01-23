@@ -31,18 +31,13 @@ class SlowRecorder():
         self.camera_viewer = self.ui.camera_viewer
         self.folder = self.ui.output_folder_input
 
-        # self.translate = self.ui.translate
-        # self.portSelector = self.ui.portSelector
-        # self.baudSelector = self.ui.baudSelector
-        # self.hexBox = self.ui.hexBox
-        # self.console = self.ui.console_thread
-
         # Buttons
         self.watch_button = self.ui.watch_button
         self.select_folder_button = self.ui.output_folder_tool
-        # self.flashButton = self.ui.flashButton
-        # self.eraseButton = self.ui.eraseButton
-        # self.sendButton = self.ui.sendButton
+
+        # indicators
+        self.progress_bar = self.ui.progress_bar 
+        self.progress_label = self.ui.progress_label 
         # #acciotns
         # self.openFile = self.ui.actionOpen
 
@@ -52,7 +47,7 @@ class SlowRecorder():
             self.camera_selector, self.timelapse_started,
             self.camera_viewer, self.watch_button,
             self.watch_active)
-        self.file_manager = FileManager(self.folder)
+        self.file_manager = FileManager(self.folder, self.progress_bar, self.progress_label)
         # Init Signals
         self.startSignals()
     #   self.thread = QThread()

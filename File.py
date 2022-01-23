@@ -1,3 +1,4 @@
+import json
 import cv2
 from math import floor
 
@@ -22,3 +23,8 @@ class File:
             
         self.progress = 100
         out.release()
+    
+    def load_config(self):
+        file = open('config.json')
+        data = json.loads(file)
+        print(data)
