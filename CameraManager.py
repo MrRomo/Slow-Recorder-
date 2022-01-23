@@ -1,7 +1,7 @@
 import cv2 
 from Camera import Camera, list_cameras
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QThread, Qt, pyqtSignal
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, QObject
 from PyQt5.QtGui import QImage, QPixmap
 from time import sleep as delay
 from collections import deque as dq
@@ -21,20 +21,25 @@ class QueueThreadList(QThread):
             delay(1)
 
 class ThreadWatch(QThread):
+    finished = pyqtSignal()
     changePixmap = pyqtSignal(QImage)
+    active_watch = pyqtSignal(bool)
 
     def run(self):
-        cap = cv2.VideoCapture(0)
-        print('run watch')
+        self.cap = cv2.VideoCapture(0)
         while True:
-            ret, frame = cap.read()
+            ret, frame = self.cap.read()
             if ret:
                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
-                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                p = QImage(rgbImage, w, h, bytesPerLine, QImage.Format_RGB888)
                 self.changePixmap.emit(p)
+            delay(0.01)
+    
+    def stop(self):
+        self.cap.release()
+        self.quit()
 
 class CameraManager:
 
@@ -50,9 +55,9 @@ class CameraManager:
         self.camera_selector_thread.queue.append(cameras)
         self.current_camera = cameras[0]
         self.translate = QtCore.QCoreApplication.translate
-        th = ThreadWatch()
-        th.changePixmap.connect(self.setImage)
-        th.start()
+        # th = ThreadWatch()
+        # th.changePixmap.connect(self.setImage)
+        # th.start()
 
 
     def refresh_cameras(self):
@@ -72,3 +77,8 @@ class CameraManager:
 
     def setImage(self, image):
         self.camera_viewer.setPixmap(QPixmap.fromImage(image))
+
+    def start_watch(self):
+        self.watch_thread = ThreadWatch()
+        self.watch_thread.changePixmap.connect(self.setImage)
+        self.watch_thread.start()

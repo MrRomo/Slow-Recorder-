@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QThread
 from UI.QT_Engine import Ui_SlowRecord
 from CameraManager import CameraManager, ThreadWatch
 from time import sleep as delay
@@ -12,7 +13,8 @@ class SlowRecorder():
         self.ports = []
         self.MainWindow = None
         self.ui = None
-
+        self.watch_active = True
+        self.switching = False
     def startApp(self):
         self.app = QtWidgets.QApplication(sys.argv)
         self.MainWindow = QtWidgets.QMainWindow()
@@ -25,6 +27,7 @@ class SlowRecorder():
         # config
         self.camera_selector = self.ui.camera_selector
         self.camera_viewer = self.ui.camera_viewer
+        self.stop_watch_button = self.ui.stop_watch_button
 
         # self.translate = self.ui.translate
         # self.portSelector = self.ui.portSelector
@@ -44,34 +47,49 @@ class SlowRecorder():
         delay(1)
         self.camera_manager = CameraManager(
             self.camera_selector, self.timelapse_started, self.camera_viewer)
-        # self.serialManager = SerialManager(self.consoleManager, self.ui, self.app)
-        # self.fileManager = FileManager(self.hexBox, self.ui)
-        # self.burnerManager = BurnerManager(self.serialManager, self.fileManager, self.ui.progressBar, self.consoleManager)
+        
+        # Init Signals
         self.startSignals()
-        # self.startThreads()
+    #   self.thread = QThread()
+    #   self.worker = ThreadWatch()
+    #   self.worker.moveToThread(self.thread)
+    #     self.thread.started.connect(self.worker.run)
+    #     self.worker.finished.connect(self.thread.quit)
+    #     self.worker.changePixmap.connect(self.camera_manager.setImage)
+    #     self.worker.active_watch.connect(self.camera_manager.setImage)
+    #     self.thread.start()
 
     def startThread(self, function):
         threading.Thread(target=function, daemon=True).start()
 
-    # def startQThread(self, signal, object, callback):
-    #     th = ThreadWatch(object)
-    #     signal = getattr(ThreadWatch, signal)
-    #     signal(th).connect(callback)
-    #     th.start()
+    def startQThread(self, Worker, slot, callback):
+        thread = QThread()
+        worker = Worker()
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        signal = getattr(worker, slot)
+        signal(worker).connect(callback)
+        return thread
 
     def startSignals(self):
         self.camera_selector.currentIndexChanged.connect(
             self.camera_manager.change_camera)
-    #     self.connectButton.clicked.connect(self.serialManager.connect)
-    #     self.eraseButton.clicked.connect(self.serialManager.change_port)
-    #     self.flashButton.clicked.connect(self.burnerManager.burn)
-    #     self.sendButton.clicked.connect(self.serialManager.send_write)
-    #     self.openFile.triggered.connect(self.fileManager.open_file)
+        self.stop_watch_button.clicked.connect(self.toggle_watch)
 
-    # def startThreads(self):
-    #     self.startQThread(
-    #         'changePixmap', self.camera_manager.setImage, self.camera_manager.setImage)
-    #     # self.startThread(self.camera_manager.active_watch)
-        # self.startThread(self.serialManager.port_selector_observer)
-        # self.startThread(self.serialManager.read_port)
-        # self.startThread(self.burnerManager.burn_task)
+    def startThreads(self):
+        self.setImageThread = self.startQThread(
+            ThreadWatch, 'changePixmap', self.camera_manager.setImage)
+        self.setImageThread.start()
+    
+    def toggle_watch(self):
+        if(not self.switching):
+            self.switching = True
+            if(self.watch_active):
+                self.camera_manager.start_watch()
+            else:
+                self.camera_manager.watch_thread.stop()
+            self.watch_active = not self.watch_active
+            self.switching = False
+
+        
+        

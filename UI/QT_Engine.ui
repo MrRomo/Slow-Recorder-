@@ -365,6 +365,19 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
+  <widget class="QPushButton" name="stop_watch_button">
+   <property name="geometry">
+    <rect>
+     <x>462</x>
+     <y>250</y>
+     <width>121</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop watch</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

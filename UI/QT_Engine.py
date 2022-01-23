@@ -111,6 +111,9 @@ class Ui_SlowRecord(object):
         self.output_folder_label_2.setGeometry(QtCore.QRect(240, 420, 161, 20))
         self.output_folder_label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.output_folder_label_2.setObjectName("output_folder_label_2")
+        self.stop_watch_button = QtWidgets.QPushButton(SlowRecord)
+        self.stop_watch_button.setGeometry(QtCore.QRect(462, 250, 121, 32))
+        self.stop_watch_button.setObjectName("stop_watch_button")
 
         self.retranslateUi(SlowRecord)
         self.duration_time_selector.setCurrentIndex(2)
@@ -141,3 +144,4 @@ class Ui_SlowRecord(object):
         self.start_button.setText(_translate("SlowRecord", "Start"))
         self.cancel_button.setText(_translate("SlowRecord", "Cancel"))
         self.output_folder_label_2.setText(_translate("SlowRecord", "time left: 45:87:12"))
+        self.stop_watch_button.setText(_translate("SlowRecord", "Stop watch"))
