@@ -52,7 +52,6 @@ class ThreadProgress(QThread):
     msg = pyqtSignal(str)
 
     def run(self):
-        delay(2)
         for i in range(100):
             self.progress.emit(i)
             self.msg.emit(f'Loading {i}%')

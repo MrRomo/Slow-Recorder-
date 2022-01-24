@@ -10,7 +10,13 @@ class File:
         self.progress = progress
 
     def save_picture(self, name, img):
-        cv2.imwrite(f'{self.folder}/{name}', img)
+        url = f'{self.folder}/{name}.png'
+        isDir = os.path.isdir(self.folder) 
+        if(isDir):
+            print("saving foto", img, url )
+            cv2.imwrite(url, img)
+        else:
+            print('el directorio no existe')
 
     def save_video(self, name, n):
         self.progress = 0
@@ -19,7 +25,7 @@ class File:
 
         for i in range(n):
             self.progress = floor(1/n*100)
-            frame = cv2.imread(f'{self.folder}/{name}{i}.jpg')
+            frame = cv2.imread(f'{self.folder}/{name}{i}.png')
             out.write(frame)
             
         self.progress = 100

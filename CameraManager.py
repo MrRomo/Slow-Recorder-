@@ -24,7 +24,7 @@ class CameraManager:
         self.camera_selector_thread.queue.append(cameras)
         self.current_camera = cameras[0]
         self.translate = QtCore.QCoreApplication.translate
-
+        self.camera = Camera(self.current_camera)
         # th = ThreadWatch()
         # th.changePixmap.connect(self.setImage)
         # th.start()
@@ -59,15 +59,14 @@ class CameraManager:
         self.watch_thread.stop()
 
     def toggle_watch(self):
-        if(not self.switching):
-            print('toggle')
-            self.switching = True
-            if(self.watch_active):
-                self.start_watch()
-            else:
-                self.stop_watch()
-            self.watch_active = not self.watch_active
-            self.switching = False
+        print('toggle')
+        self.switching = True
+        if(self.watch_active):
+            self.start_watch()
+        else:
+            self.stop_watch()
+        self.watch_active = not self.watch_active
+        self.switching = False
 
 
 class QueueThreadList(QThread):
